@@ -51,7 +51,7 @@ repodoc = "repodoc.cli:app"
 [project.optional-dependencies]
 dev = [
     "ruff>=0.8.0",
-    "pyright>=1.1.0",
+    "ty>=0.0.1",
     "pytest>=8.0.0",
     "pytest-cov>=6.0.0",
 ]
@@ -82,17 +82,13 @@ ignore = []
 quote-style = "double"
 indent-style = "space"
 
-[tool.pyright]
-pythonVersion = "3.11"
-typeCheckingMode = "strict"
-reportMissingTypeStubs = false
-reportUnknownMemberType = false
-reportUnknownArgumentType = false
-reportUnknownVariableType = false
+[tool.ty]
+# Type checking configuration for Astral's ty
+# See: https://docs.astral.sh/ty/
 
 [dependency-groups]
 dev = [
-    "pyright>=1.1.408",
+    "ty>=0.0.1",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "ruff>=0.15.0",
