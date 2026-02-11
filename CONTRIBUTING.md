@@ -47,7 +47,7 @@ Thank you for your interest in contributing to RepoDoctor! This document provide
    uv run pytest
 
    # Check types
-   uv run pyright src/
+   uv run ty check src/
 
    # Lint code
    uv run ruff check src/
@@ -158,7 +158,7 @@ uv run ruff format src/ tests/
 uv run ruff check src/ tests/
 
 # Type check
-uv run pyright src/
+uv run ty check src/
 
 # Run all tests
 uv run pytest
@@ -199,7 +199,7 @@ Then create a Pull Request on GitHub with:
 
 ### Python Code Style
 
-We use **ruff** for formatting and linting, **pyright** for type checking.
+We use **ruff** for formatting and linting, **ty** for type checking (10-100x faster than mypy/pyright).
 
 **Key Principles:**
 - **Type hints everywhere** - All functions should have type annotations
@@ -503,7 +503,7 @@ When adding features, update:
 
 1. **Ensure all checks pass**
    - Tests pass (`pytest`)
-   - Type checking passes (`pyright`)
+   - Type checking passes (`ty`)
    - Linting passes (`ruff`)
 
 2. **Update documentation**

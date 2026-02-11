@@ -31,7 +31,7 @@ Before publishing a new release:
 - [ ] All tests pass: `uv run pytest`
 - [ ] No linting errors: `uv run ruff check`
 - [ ] Code is formatted: `uv run ruff format --check`
-- [ ] No type errors: `uv run pyright`
+- [ ] No type errors: `uv run ty check`
 - [ ] Version bumped in all files
 - [ ] CHANGELOG.md updated with changes
 - [ ] README.md is up-to-date

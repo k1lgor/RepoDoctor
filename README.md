@@ -5,7 +5,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Type checked: pyright](https://img.shields.io/badge/type%20checked-pyright-blue.svg)](https://github.com/microsoft/pyright)
+[![Type checked: ty](https://img.shields.io/badge/type%20checked-ty-blue.svg)](https://docs.astral.sh/ty/)
 [![codecov](https://codecov.io/gh/k1lgor/RepoDoctor/branch/main/graph/badge.svg)](https://codecov.io/gh/k1lgor/RepoDoctor)
 [![PyPI version](https://badge.fury.io/py/repodoc.svg)](https://badge.fury.io/py/repodoc)
 
@@ -408,10 +408,10 @@ uv run ruff format src/ tests/
 uv run ruff check src/ tests/
 
 # Type check
-uv run pyright src/
+uv run ty check src/
 
 # Run all quality checks
-uv run ruff check src/ && uv run pyright src/
+uv run ruff check src/ && uv run ty check src/
 ```
 
 ### Project Structure

@@ -52,6 +52,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Default behavior: writes DIET.md file
   - `--json` flag outputs JSON summary to stdout
   - `--out <path>` allows custom markdown file path
+- **CI/CD Tests**: Fixed GitHub Actions test failures caused by missing Copilot CLI
+  - Added `shutil.which()` mocking in all test fixtures to simulate Copilot CLI availability
+  - Tests in `test_copilot.py` now mock copilot binary presence during `CopilotInvoker` instantiation
+  - CI pipelines no longer require actual GitHub Copilot CLI installation
+  - All 54 tests pass without any external dependencies beyond Python packages
 - **Clean error messages**: Removed duplicate/confusing error output from console
   - Logger messages now only written to `.repodoc/logs/` directory
   - Users see single, clear error message without logging noise
@@ -63,6 +68,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Bug Fix**: Fixed schema to allow flexible issues/recommendations format from Copilot
   - **Enhancement**: Added success message with next actions
   - Report now generates REPODOCTOR_REPORT.md successfully from scan cache
+- **Type safety**: Fixed all type checking errors (ty now passes with 0 errors)
+  - Added type annotations for `save_text_output` function parameters (`Callable`, `Any`)
+  - Fixed `CopilotTimeoutError` to accept `int | None` timeout parameter
+  - Added runtime checks for `sys.stdout.reconfigure` availability on Windows
+  - Added proper `# type: ignore` comments for dynamic attribute access
+  - Fixed `max()` return type inference with explicit `cast(str, ...)` for ty type checker
+  - All core modules now fully type-safe with proper annotations
 
 ### Features
 
@@ -85,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical
 - Python 3.11+ support (tested on 3.11, 3.12, 3.13)
 - Cross-platform: Linux, macOS, Windows
-- Type-safe with pyright strict mode
+- Type-safe with ty type checker (10-100x faster than alternatives)
 - Formatted with ruff
 - Tested with pytest (51 passing tests, 54% coverage)
 - Built with Typer CLI framework
