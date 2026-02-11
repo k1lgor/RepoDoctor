@@ -1,0 +1,88 @@
+You are analyzing a repository for bloat and hygiene issues.
+
+TASK:
+Perform a comprehensive "diet" analysis of the repository at the current working directory. Identify:
+1. The largest files and directories (top 10 each)
+2. Suspected build artifacts or unnecessary files (node_modules, dist, .pyc, etc.)
+3. Missing standard hygiene files (README, LICENSE, .gitignore, CONTRIBUTING, etc.)
+
+ANALYSIS STEPS:
+- CRITICAL: Respect .gitignore - skip all files/directories listed in .gitignore
+- Use git commands to get tracked files: `git ls-files` (lists only tracked files)
+- For size analysis: `git ls-files | xargs du -sh 2>/dev/null | sort -rh | head -10`
+- Common patterns to ALWAYS exclude: .git/, .venv/, venv/, node_modules/, __pycache__/, .pytest_cache/, .ruff_cache/, dist/, build/, target/, *.pyc, .tox/, htmlcov/
+- Alternative: Use find with exclusions: `find . -type f -not -path './.git/*' -not -path './.venv/*' -not -path './*cache*'`
+- Check for common patterns of build artifacts in TRACKED files only
+- Look for presence of standard repository files in the root directory
+- Calculate total repository size: `du -sh --exclude=.git --exclude=.venv --exclude=node_modules .`
+
+OUTPUT FORMAT:
+Return STRICT JSON matching this schema (no markdown code blocks, no explanatory text):
+
+{
+  "command": "diet",
+  "success": true,
+  "issues": [
+    {
+      "title": "Large build artifacts committed",
+      "description": "The dist/ directory contains 150MB of build artifacts",
+      "severity": "high",
+      "category": "bloat",
+      "file_path": "dist/",
+      "suggestion": "Add dist/ to .gitignore and remove from repository"
+    }
+  ],
+  "recommendations": [
+    {
+      "action": "Add .gitignore for build artifacts",
+      "priority": "high",
+      "reason": "Prevent accidental commits of generated files",
+      "estimated_impact": "Reduce repository size by ~150MB"
+    }
+  ],
+  "metadata": {
+    "analysis_timestamp": "2024-01-01T12:00:00Z",
+    "repo_path": "/path/to/repo"
+  },
+  "analysis": {
+    "total_size_bytes": 200000000,
+    "total_size_human": "200 MB",
+    "largest_files": [
+      {
+        "path": "dist/bundle.js",
+        "size_bytes": 50000000,
+        "size_human": "50 MB"
+      }
+    ],
+    "largest_directories": [
+      {
+        "path": "node_modules/",
+        "size_bytes": 100000000,
+        "size_human": "100 MB",
+        "file_count": 15000
+      }
+    ],
+    "suspected_artifacts": [
+      "dist/",
+      "*.pyc files in src/",
+      "__pycache__/ directories"
+    ],
+    "missing_hygiene_files": [
+      {
+        "filename": "LICENSE",
+        "importance": "Required for open source projects to specify usage terms",
+        "template_url": "https://choosealicense.com"
+      }
+    ]
+  },
+  "diet_markdown": "# Repository Diet Analysis\n\n## Summary\n\nTotal Size: **200 MB**\n\n## Largest Files\n\n1. `dist/bundle.js` - 50 MB\n\n## Recommendations\n\n- Add .gitignore for build artifacts\n- Remove dist/ directory from repository"
+}
+
+IMPORTANT:
+- Severity levels: "critical", "high", "medium", "low", "info"
+- Be specific with file paths (relative to repo root)
+- Provide human-readable sizes (MB, GB, KB)
+- Only include findings you are confident about
+- The `diet_markdown` field MUST contain a complete Markdown document for DIET.md
+- Include sections: Summary, Largest Files, Largest Directories, Suspected Artifacts, Missing Hygiene Files, Recommendations
+- Output ONLY the JSON, nothing else

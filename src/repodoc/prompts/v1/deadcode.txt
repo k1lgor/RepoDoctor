@@ -1,0 +1,98 @@
+You are detecting probable dead code in a repository.
+
+TASK:
+Analyze the repository for dead code using best-effort heuristics:
+1. Unused/orphaned files and modules
+2. Commented-out code blocks
+3. Suspicious directories (old/, backup/, deprecated/, temp/)
+4. Unreferenced functions or classes (if detectable)
+5. Files not imported/referenced anywhere
+
+ANALYSIS STEPS:
+- CRITICAL: Only analyze TRACKED files - use `git ls-files` to get list of tracked files
+- Common patterns to ALWAYS exclude: .git/, .venv/, venv/, node_modules/, __pycache__/, .pytest_cache/, .ruff_cache/, dist/, build/, target/, *.pyc, .tox/, htmlcov/
+- Search for directories with names like "old/", "backup/", "deprecated/", "archive/", "unused/" among tracked files
+- Look for tracked files with names ending in .bak, .old, _backup, _deprecated
+- Scan for large blocks of commented code in tracked source files only
+- Use grep on tracked files: `git ls-files | xargs grep -l 'pattern'`
+- Check for test files or scripts that reference deleted functionality
+- Be conservative and label confidence levels appropriately
+
+CONFIDENCE LEVELS:
+- "high": Very likely dead code (old/ directories, .bak files, never referenced)
+- "medium": Probably dead code (commented blocks >20 lines, suspicious file patterns)
+- "low": Possibly dead code (rarely used functions, questionable patterns)
+
+OUTPUT FORMAT:
+Return STRICT JSON matching this schema:
+
+{
+  "command": "deadcode",
+  "success": true,
+  "issues": [
+    {
+      "title": "Orphaned backup directory detected",
+      "description": "Directory old/ contains 15 files that appear to be unused backups",
+      "severity": "low",
+      "category": "deadcode",
+      "file_path": "old/",
+      "suggestion": "Review and remove if confirmed as obsolete"
+    }
+  ],
+  "recommendations": [
+    {
+      "action": "Remove old/ directory after confirming contents are obsolete",
+      "priority": "low",
+      "reason": "Reduces repository clutter and confusion for new contributors",
+      "estimated_impact": "Cleaner codebase, ~500 lines removed"
+    }
+  ],
+  "metadata": {
+    "analysis_timestamp": "2024-01-01T12:00:00Z"
+  },
+  "findings": [
+    {
+      "file_path": "old/legacy_api.py",
+      "line_range": null,
+      "code_type": "orphan module",
+      "confidence": "high",
+      "reason": "File in 'old/' directory, not imported anywhere, last modified 2 years ago",
+      "suggestion": "Remove",
+      "estimated_lines": 150
+    },
+    {
+      "file_path": "src/utils.py",
+      "line_range": [45, 75],
+      "code_type": "commented code",
+      "confidence": "medium",
+      "reason": "30 lines of commented Python code, no explanation comment",
+      "suggestion": "Remove if no longer needed, or document why it's kept",
+      "estimated_lines": 30
+    },
+    {
+      "file_path": "src/deprecated_helper.py",
+      "line_range": null,
+      "code_type": "unused function",
+      "confidence": "medium",
+      "reason": "Function 'old_format()' not called anywhere in the codebase",
+      "suggestion": "Investigate further - may be part of public API",
+      "estimated_lines": 25
+    }
+  ],
+  "summary": {
+    "total_findings": 3,
+    "high_confidence_count": 1,
+    "medium_confidence_count": 2,
+    "low_confidence_count": 0,
+    "estimated_total_lines": 205
+  },
+  "analysis_notes": "This analysis uses heuristics and may have false positives. Always review findings before deletion. Public APIs and plugin systems may have 'unused' code that is actually consumed externally."
+}
+
+IMPORTANT:
+- Confidence levels: "high", "medium", "low"
+- Code types: "orphan module", "commented code", "unused function", "suspicious directory", "backup file", "unreferenced file"
+- Always include confidence level and reasoning
+- Be conservative - false positives are worse than false negatives
+- Include analysis_notes about methodology and limitations
+- Output ONLY the JSON, nothing else

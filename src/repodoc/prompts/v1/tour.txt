@@ -1,0 +1,90 @@
+You are creating a guided onboarding tour for a repository.
+
+TASK:
+Generate a comprehensive onboarding guide for a new contributor to this repository. Analyze the codebase structure and create:
+1. Technology stack identification (languages, frameworks, tools, databases)
+2. Key entry points to the codebase
+3. Directory structure guide with purpose explanations
+4. Recommended reading order for understanding the codebase
+5. High-level architecture notes
+
+ANALYSIS STEPS:
+- CRITICAL: Only analyze TRACKED source files - use `git ls-files` to get tracked files
+- Common patterns to ALWAYS exclude: .git/, .venv/, venv/, node_modules/, __pycache__/, .pytest_cache/, .ruff_cache/, dist/, build/, target/, *.pyc, .tox/, htmlcov/
+- Examine package files (package.json, requirements.txt, Gemfile, pom.xml, etc.) to identify dependencies
+- Look for main entry points (main.py, index.js, app.py, server.js, Main.java, etc.) among tracked files
+- Analyze tracked directory structure: `git ls-files | sed 's|/[^/]*$||' | sort -u`
+- Identify configuration files and their purposes
+- Create a logical reading path through the SOURCE CODE (not dependencies or caches)
+
+OUTPUT FORMAT:
+Return TWO things in STRICT JSON:
+1. A structured summary (for programmatic use)
+2. Complete TOUR.md markdown content (to be written to file)
+
+{
+  "command": "tour",
+  "success": true,
+  "issues": [],
+  "recommendations": [
+    {
+      "action": "Start by reading README.md, then main.py, then explore src/core/",
+      "priority": "info",
+      "reason": "This path provides the fastest understanding of the system",
+      "estimated_impact": "Reduce onboarding time from days to hours"
+    }
+  ],
+  "metadata": {
+    "analysis_timestamp": "2024-01-01T12:00:00Z",
+    "repo_path": "/path/to/repo"
+  },
+  "tour": {
+    "stack": {
+      "languages": ["Python", "JavaScript"],
+      "frameworks": ["Flask", "React"],
+      "tools": ["Docker", "pytest", "webpack"],
+      "databases": ["PostgreSQL", "Redis"]
+    },
+    "entry_points": [
+      {
+        "file_path": "src/main.py",
+        "description": "Main application entry point, starts Flask server",
+        "type": "main"
+      },
+      {
+        "file_path": "frontend/src/index.js",
+        "description": "React frontend entry point",
+        "type": "frontend"
+      }
+    ],
+    "directory_structure": [
+      {
+        "path": "src/",
+        "purpose": "Main application source code",
+        "key_files": ["main.py", "config.py", "models.py"]
+      },
+      {
+        "path": "tests/",
+        "purpose": "Test suite using pytest",
+        "key_files": ["test_api.py", "conftest.py"]
+      }
+    ],
+    "recommended_reading_order": [
+      "README.md - Project overview",
+      "src/main.py - Application entry point",
+      "src/models.py - Data models",
+      "src/api/ - API endpoints",
+      "tests/ - Test suite to understand expected behavior"
+    ],
+    "architecture_notes": "This is a Flask-based REST API with a React frontend. The backend follows MVC pattern with models in src/models/, controllers in src/api/, and views handled by React."
+  },
+  "tour_markdown": "# Repository Tour\n\n## Overview\n\nThis repository contains...\n\n## Technology Stack\n\n- **Languages**: Python 3.11, JavaScript (ES6+)\n- **Backend**: Flask 2.0\n- **Frontend**: React 18\n\n## Getting Started\n\n### Entry Points\n\n1. **Backend** (`src/main.py`): Main Flask application\n2. **Frontend** (`frontend/src/index.js`): React app entry\n\n## Directory Structure\n\n- `src/` - Backend application code\n- `frontend/` - React frontend\n- `tests/` - Test suite\n- `docs/` - Documentation\n\n## Recommended Reading Order\n\n1. Start with `README.md`\n2. Read `src/main.py` to understand the application flow\n3. Explore `src/models.py` for data structures\n4. Check `src/api/` for API endpoints\n5. Review tests to see expected behavior\n\n## Architecture\n\nThis is a full-stack application with Flask backend and React frontend..."
+}
+
+IMPORTANT:
+- The "tour_markdown" field should contain complete, well-formatted Markdown
+- Include code snippets or examples where helpful in the markdown
+- Be practical and specific, not generic
+- Focus on what makes THIS repository unique
+- Provide a clear learning path
+- Output ONLY the JSON, nothing else

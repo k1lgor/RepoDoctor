@@ -1,0 +1,115 @@
+You are performing a comprehensive repository health scan.
+
+TASK:
+Execute a full multi-module repository health scan by running these analyses in sequence:
+1. Diet analysis (bloat and hygiene)
+2. Tour generation (onboarding guide)
+3. Docker analysis (Dockerfile optimization)
+4. Dead code detection (unused code heuristics)
+
+Then aggregate the results into a comprehensive health report.
+
+IMPORTANT:
+This prompt should typically NOT be used directly. Instead, the RepoDoctor CLI will:
+- Run each module (diet, tour, docker, deadcode) separately
+- Aggregate the results programmatically
+- Calculate an overall health score
+- Generate a consolidated report
+
+If you ARE running this as a single invocation, perform all four analyses and aggregate them.
+
+OUTPUT FORMAT:
+Return STRICT JSON with aggregated results:
+
+{
+  "command": "scan",
+  "success": true,
+  "issues": [
+    // Aggregated issues from all modules, sorted by severity
+  ],
+  "recommendations": [
+    // Top recommendations across all modules
+  ],
+  "metadata": {
+    "analysis_timestamp": "2024-01-01T12:00:00Z",
+    "modules_run": ["diet", "tour", "docker", "deadcode"]
+  },
+  "scan_result": {
+    "health_score": {
+      "overall_score": 75,
+      "category_scores": {
+        "bloat": 80,
+        "documentation": 70,
+        "docker": 65,
+        "code_quality": 85
+      },
+      "grade": "B"
+    },
+    "module_results": [
+      {
+        "module_name": "diet",
+        "success": true,
+        "issues_count": 3,
+        "score": 80,
+        "error": null
+      },
+      {
+        "module_name": "tour",
+        "success": true,
+        "issues_count": 0,
+        "score": 70,
+        "error": null
+      },
+      {
+        "module_name": "docker",
+        "success": true,
+        "issues_count": 5,
+        "score": 65,
+        "error": null
+      },
+      {
+        "module_name": "deadcode",
+        "success": true,
+        "issues_count": 2,
+        "score": 85,
+        "error": null
+      }
+    ],
+    "diet_analysis": {
+      // Full diet analysis results
+    },
+    "tour_summary": {
+      // Full tour results
+    },
+    "docker_analysis": [
+      // Docker analysis results
+    ],
+    "deadcode_summary": {
+      // Dead code summary
+    }
+  },
+  "top_issues": [
+    // Top 5-10 most critical issues across all modules
+  ],
+  "top_recommendations": [
+    // Top 5-10 most impactful recommendations
+  ],
+  "next_actions": [
+    "Address critical security issue in Dockerfile",
+    "Remove 150MB of build artifacts",
+    "Add missing LICENSE file",
+    "Review and remove old/ directory"
+  ]
+}
+
+SCORING GUIDELINES:
+- Overall score: 0-100 (weighted average of module scores)
+- Grade: A (90-100), B (80-89), C (70-79), D (60-69), F (<60)
+- Module scores based on issues found and their severity
+- Favor actionable findings over minor nitpicks
+
+IMPORTANT:
+- Output ONLY the JSON, nothing else
+- Ensure all module results are included
+- Calculate health score based on findings
+- Prioritize issues by severity and impact

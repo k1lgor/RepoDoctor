@@ -1,0 +1,240 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"  # Trigger on version tags like v0.1.0, v1.2.3
+
+permissions:
+  contents: write  # Required for creating releases
+  id-token: write  # Required for trusted publishing to PyPI
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate tag format
+        run: |
+          TAG="${{ github.ref_name }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9]+)?$ ]]; then
+            echo "Invalid tag format: $TAG"
+            echo "Expected format: v0.1.0 or v1.2.3-beta"
+            exit 1
+          fi
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Releasing version: $VERSION"
+
+      - name: Check version matches pyproject.toml
+        run: |
+          EXPECTED_VERSION="${{ steps.version.outputs.version }}"
+          PYPROJECT_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+
+          if [[ "$PYPROJECT_VERSION" != "$EXPECTED_VERSION" ]]; then
+            echo "Version mismatch!"
+            echo "Tag version: $EXPECTED_VERSION"
+            echo "pyproject.toml version: $PYPROJECT_VERSION"
+            exit 1
+          fi
+          echo "✓ Version matches: $EXPECTED_VERSION"
+
+  build:
+    name: Build Distribution
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Build package
+        run: uv build
+
+      - name: List build artifacts
+        run: ls -lh dist/
+
+      - name: Check package with twine
+        run: |
+          uv tool run twine check dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  test-install:
+    name: Test Installation
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install package from wheel
+        shell: bash
+        run: |
+          WHEEL=$(ls dist/*.whl)
+          uv pip install "$WHEEL"
+
+      - name: Test CLI command
+        run: |
+          repodoc --version
+          repodoc --help
+
+  publish-pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    needs: [build, test-install]
+    environment:
+      name: pypi
+      url: https://pypi.org/project/repodoc/
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # Using trusted publishing (no token needed)
+          # Configure at: https://pypi.org/manage/account/publishing/
+          print-hash: true
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate, build, publish-pypi]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Extract changelog for this version from CHANGELOG.md
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Try to extract section between [VERSION] and next version or EOF
+          CHANGELOG=$(awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | sed '1d;$d' || echo "")
+
+          if [[ -z "$CHANGELOG" ]]; then
+            CHANGELOG="Release $VERSION
+
+            See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details."
+          fi
+
+          # Save to file for multiline output
+          echo "$CHANGELOG" > release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ steps.version.outputs.version }}
+          body_path: release_notes.md
+          files: dist/*
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  announce:
+    name: Announce Release
+    runs-on: ubuntu-latest
+    needs: create-release
+    if: success()
+    steps:
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Post to Discussions (optional)
+        # Uncomment if you want to post release announcements
+        if: false
+        run: |
+          echo "🎉 Released RepoDoctor v${{ steps.version.outputs.version }}"
+          echo "See: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+
+      - name: Create issue for documentation update
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ steps.version.outputs.version }}';
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📚 Update documentation for v${version}`,
+              body: `Post-release tasks for v${version}:
+
+                - [ ] Verify PyPI package is live: https://pypi.org/project/repodoc/${version}/
+                - [ ] Update documentation if needed
+                - [ ] Share release announcement
+                - [ ] Monitor for issues
+
+                Release: https://github.com/${context.repo.owner}/${context.repo.repo}/releases/tag/v${version}`,
+              labels: ['documentation', 'release']
+            });
+
+      - name: Summary
+        run: |
+          echo "## 🎉 Release Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**PyPI:** https://pypi.org/project/repodoc/${{ steps.version.outputs.version }}/" >> $GITHUB_STEP_SUMMARY
+          echo "**GitHub:** https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Test installation: \`pip install repodoc==${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. Verify CLI: \`repodoc --version\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. Share the release! 📢" >> $GITHUB_STEP_SUMMARY

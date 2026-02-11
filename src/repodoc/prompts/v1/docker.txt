@@ -1,0 +1,109 @@
+You are analyzing Dockerfiles for optimization and best practices.
+
+TASK:
+Inspect all Dockerfiles in the repository and identify:
+1. Caching inefficiencies (poor layer ordering)
+2. Missing .dockerignore file
+3. Security issues (running as root, unversioned base images)
+4. Size optimization opportunities (multi-stage builds, alpine images)
+5. Best practice violations
+
+ANALYSIS STEPS:
+- Find all files named "Dockerfile" or "*.dockerfile" in the repository
+- For each Dockerfile:
+  - Check base image (FROM directive) for version pinning
+  - Analyze layer order for cache efficiency
+  - Look for security anti-patterns (USER root, latest tags)
+  - Identify size optimization opportunities
+  - Check for HEALTHCHECK, proper ENTRYPOINT/CMD usage
+- Check if .dockerignore exists
+- If --fix flag is implied, suggest a patched Dockerfile
+
+OUTPUT FORMAT:
+Return STRICT JSON matching this schema:
+
+{
+  "command": "docker",
+  "success": true,
+  "issues": [
+    {
+      "title": "Dockerfile uses unversioned base image",
+      "description": "FROM python:latest should be pinned to a specific version",
+      "severity": "medium",
+      "category": "docker",
+      "file_path": "Dockerfile",
+      "suggestion": "Use FROM python:3.11-slim instead"
+    }
+  ],
+  "recommendations": [
+    {
+      "action": "Implement multi-stage build to reduce image size",
+      "priority": "medium",
+      "reason": "Current image is ~500MB, can be reduced to ~100MB",
+      "estimated_impact": "80% size reduction, faster deployments"
+    }
+  ],
+  "metadata": {
+    "analysis_timestamp": "2024-01-01T12:00:00Z"
+  },
+  "dockerfiles": [
+    {
+      "dockerfile_path": "Dockerfile",
+      "base_image": "python:latest",
+      "issues": [
+        {
+          "issue_type": "security",
+          "line_number": 1,
+          "current": "FROM python:latest",
+          "suggested": "FROM python:3.11-slim",
+          "explanation": "Using 'latest' tag can lead to unexpected breakage when base image updates",
+          "severity": "medium"
+        },
+        {
+          "issue_type": "caching",
+          "line_number": 5,
+          "current": "COPY . /app",
+          "suggested": "COPY requirements.txt /app/\nRUN pip install -r requirements.txt\nCOPY . /app",
+          "explanation": "Copying all files before pip install invalidates cache on any code change",
+          "severity": "low"
+        }
+      ],
+      "optimizations": [
+        "Use multi-stage build to separate build dependencies from runtime",
+        "Switch to python:3.11-slim to reduce base image size",
+        "Add HEALTHCHECK instruction"
+      ],
+      "missing_dockerignore": true,
+      "size_estimate": "~500 MB (could be ~100 MB with optimizations)"
+    }
+  ],
+  "patched_dockerfile": {
+    "original_path": "Dockerfile",
+    "patched_content": "FROM python:3.11-slim as builder\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\nFROM python:3.11-slim\nWORKDIR /app\nCOPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages\nCOPY . .\nUSER nobody\nHEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8000/health || exit 1\nCMD [\"python\", \"main.py\"]",
+    "changes_summary": [
+      "Implemented multi-stage build",
+      "Pinned base image to python:3.11-slim",
+      "Improved layer caching for dependencies",
+      "Added USER nobody for security",
+      "Added HEALTHCHECK instruction",
+      "Optimized COPY order"
+    ]
+  },
+  "dockerignore_suggestions": [
+    ".git",
+    "*.pyc",
+    "__pycache__",
+    ".pytest_cache",
+    "*.md",
+    "tests/",
+    ".venv",
+    ".env"
+  ]
+}
+
+IMPORTANT:
+- Issue types: "security", "caching", "size", "best-practice"
+- Severity levels: "critical", "high", "medium", "low"
+- Be specific with line numbers when possible
+- Only provide patched_dockerfile if improvements are significant
+- Output ONLY the JSON, nothing else

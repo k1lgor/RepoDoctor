@@ -1,0 +1,99 @@
+[project]
+name = "repodoc"
+version = "0.1.0"
+description = "A Copilot-first CLI tool for repository health analysis"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Plamen Ivanov", email = "paco.iwanow@gmail.com" }
+]
+keywords = [
+    "copilot",
+    "cli",
+    "repository",
+    "analysis",
+    "health",
+    "linter",
+    "code-quality",
+    "developer-tools",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12.0",
+    "pydantic>=2.0.0",
+    "rich>=13.0.0",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/k1lgor/RepoDoctor"
+Repository = "https://github.com/k1lgor/RepoDoctor"
+Issues = "https://github.com/k1lgor/RepoDoctor/issues"
+Changelog = "https://github.com/k1lgor/RepoDoctor/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/k1lgor/RepoDoctor#readme"
+
+[project.scripts]
+repodoc = "repodoc.cli:app"
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8.0",
+    "pyright>=1.1.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.408",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.15.0",
+]
