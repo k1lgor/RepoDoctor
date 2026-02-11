@@ -56,8 +56,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
 
-      - name: Run pyright
-        run: uv run pyright
+      - name: Run ty type checker
+        run: uv run ty check src/
 
   test:
     name: Test (Python ${{ matrix.python-version }})
