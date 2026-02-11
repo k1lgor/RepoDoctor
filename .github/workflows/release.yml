@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*.*.*"  # Trigger on version tags like v0.1.0, v1.2.3
+  workflow_dispatch:
 
 permissions:
   contents: write  # Required for creating releases
@@ -108,7 +109,7 @@ jobs:
           uv venv
           source .venv/bin/activate || .venv/Scripts/activate
           uv pip install "$WHEEL"
-          
+
       - name: Test CLI command
         shell: bash
         run: |
