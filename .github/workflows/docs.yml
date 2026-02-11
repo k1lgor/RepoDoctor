@@ -43,6 +43,7 @@ jobs:
           globs: |
             *.md
             docs/**/*.md
+          config: .markdownlint.json
 
   validate-changelog:
     name: Validate CHANGELOG Format

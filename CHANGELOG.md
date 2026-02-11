@@ -57,22 +57,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Timeout parameter now optional everywhere (no default value, user can specify as needed)
 - Copilot CLI output encoding on Windows (force UTF-8 instead of system default cp1252)
 - NoneType error when Copilot CLI returns empty stdout/stderr
-- **Cross-platform UTF-8 enforcement**: All output (console, files, subprocess) now uses UTF-8 on all operating systems
+- **Cross-platform UTF-8 enforcement**: All output (console, files,
+  subprocess) now uses UTF-8 on all operating systems
   - Windows console code page set to UTF-8 (CP 65001)
   - Python stdout/stderr reconfigured to UTF-8
   - Rich console configured for modern UTF-8 output
   - All file operations use explicit UTF-8 encoding
-- **Tour command file generation**: TourRenderer now actually writes TOUR.md file (was only displaying success message)
-- **Diet command markdown generation**: Diet command now generates DIET.md file by default (like tour/report)
+- **Tour command file generation**: TourRenderer now actually writes TOUR.md
+  file (was only displaying success message)
+- **Diet command markdown generation**: Diet command now generates DIET.md
+  file by default (like tour/report)
   - Added `diet_markdown` field to DietOutput schema
   - Updated prompt to generate markdown content
   - Default behavior: writes DIET.md file
   - `--json` flag outputs JSON summary to stdout
   - `--out <path>` allows custom markdown file path
-- **CI/CD Tests**: Fixed GitHub Actions test failures and optimized test suite
-  - Added `shutil.which()` mocking in all test fixtures to simulate Copilot CLI availability
-  - Added `shutil.which()` mocking in all integration test methods (`test_diet_command.py`)
-  - **Skipped 6 tests** that require actual Copilot CLI installation (marked with `@pytest.mark.skip`)
+- **CI/CD Tests**: Fixed GitHub Actions test failures and optimized test
+  suite
+  - Added `shutil.which()` mocking in all test fixtures to simulate
+    Copilot CLI availability
+  - Added `shutil.which()` mocking in all integration test methods
+    (`test_diet_command.py`)
+  - **Skipped 6 tests** that require actual Copilot CLI installation
+    (marked with `@pytest.mark.skip`)
     - `test_invoke_with_cwd`
     - `test_invoke_execution_error`
     - `test_invoke_empty_output`
