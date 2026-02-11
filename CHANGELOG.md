@@ -10,22 +10,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-02-11
 
 ### Added
-- Initial release of RepoDoctor
-- Six core analysis commands: diet, tour, docker, deadcode, scan, report
-- AI-powered analysis via GitHub Copilot CLI
-- Rich terminal output with colors and formatting
-- JSON output format for programmatic use
-- Comprehensive error handling with helpful messages
-- Retry logic for Copilot CLI failures
-- Pydantic schema validation
-- 54 passing tests with fixtures and mocks (98% pass rate)
-- Comprehensive documentation (README, CONTRIBUTING, LICENSE)
-- GitHub Actions CI/CD workflows
-- Automated PyPI publishing with trusted publishing
-- **File Generation**: Commands generate markdown files by default
-  - `repodoc diet` → generates **DIET.md**
+
+- **Initial release of RepoDoctor** - AI-powered repository health analysis tool
+- **Six core analysis commands**:
+  - `diet` - Repository bloat and hygiene analysis
+  - `tour` - Onboarding guide generation (TOUR.md)
+  - `docker` - Dockerfile security and optimization analysis
+  - `deadcode` - Unused code detection
+  - `scan` - Comprehensive multi-module health scanning
+  - `report` - Beautiful markdown reports from scan results
+- **File generation by default**: Commands now generate markdown files
+  - `repodoc diet` → generates **DIET.md** (markdown format by default)
   - `repodoc tour` → generates **TOUR.md**
   - `repodoc report` → generates **REPODOCTOR_REPORT.md**
+- **GitHub Copilot CLI integration**: All analysis delegated to AI
+- **Rich terminal output**: Colors, tables, panels, spinners
+- **JSON output support**: `--json` flag for programmatic use
+- **Flexible output paths**: `--out <path>` for custom file locations
+- **Optional timeout parameter**: `--timeout <seconds>` for large repositories
+- **Comprehensive error handling**: Clean, helpful error messages
+- **Retry logic**: Automatic retry with stricter formatting on JSON parse failures
+- **UTF-8 encoding everywhere**: Cross-platform Unicode support
+- **Pydantic schema validation**: Type-safe data models
+- **Extensive testing**: 54 tests with 98% pass rate, all CI/CD ready
+- **Full documentation**: README, CONTRIBUTING, PRD, PUBLISHING guides
+- **GitHub Actions CI/CD**: Automated testing, linting, type checking, and PyPI publishing
+- **Type checking with ty**: Astral's blazing-fast type checker (10-100x faster than alternatives)
 
 ### Fixed
 - Logger exc_info parameter handling to prevent KeyError on error reporting
@@ -95,9 +105,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive logging and debugging support
 
 ### Technical
-- Python 3.11+ support (tested on 3.11, 3.12, 3.13)
-- Cross-platform: Linux, macOS, Windows
-- Type-safe with ty type checker (10-100x faster than alternatives)
+
+- **Python 3.11+ support** (tested on 3.11, 3.12, 3.13)
+- **Cross-platform**: Linux, macOS, Windows
+- **Package manager**: uv (by Astral) - blazing fast Python package manager
+- **Linter/Formatter**: ruff (by Astral) - 10-100x faster than traditional tools
+- **Type checker**: ty (by Astral) - 10-100x faster than mypy/pyright
+- **Testing**: pytest with 54 tests, 98% pass rate, 51% coverage
+- **CI/CD**: GitHub Actions with automated testing and PyPI publishing
+- **Architecture**: Copilot-first, no hardcoded rules, extensible prompt templates
+- **Safe defaults**: Never overwrites files without explicit `--in-place` flag
+- **UTF-8 everywhere**: Cross-platform Unicode support for all I/O operations
+
+---
+
+## Quality Metrics (v0.1.0)
+
+- ✅ **54 tests passing** (98% pass rate, 1 xfailed)
+- ✅ **51% code coverage**
+- ✅ **0 lint errors** (ruff)
+- ✅ **0 type errors** (ty)
+- ✅ **All CI checks passing**
+- ✅ **CI-ready**: No external dependencies required for tests
+
+---
+
+## Links
+
+- [GitHub Repository](https://github.com/k1lgor/RepoDoctor)
+- [PyPI Package](https://pypi.org/project/repodoc/)
+- [Documentation](https://github.com/k1lgor/RepoDoctor#readme)
+- [Contributing Guide](https://github.com/k1lgor/RepoDoctor/blob/main/CONTRIBUTING.md)
+
+---
+
+[Unreleased]: https://github.com/k1lgor/RepoDoctor/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/k1lgor/RepoDoctor/releases/tag/v0.1.0
 - Formatted with ruff
 - Tested with pytest (51 passing tests, 54% coverage)
 - Built with Typer CLI framework
