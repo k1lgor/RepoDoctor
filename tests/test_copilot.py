@@ -18,18 +18,30 @@ from repodoc.core.exceptions import (
 class TestCopilotInvoker:
     """Tests for CopilotInvoker class."""
 
-    def test_initialization(self) -> None:
+    def test_initialization(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test CopilotInvoker initializes with no default timeout."""
+        import shutil
+        # Mock copilot being available
+        monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
+        
         invoker = CopilotInvoker()
         assert invoker.timeout is None
 
-    def test_initialization_custom_timeout(self) -> None:
+    def test_initialization_custom_timeout(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test CopilotInvoker initializes with custom timeout."""
+        import shutil
+        # Mock copilot being available
+        monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
+        
         invoker = CopilotInvoker(timeout=300)
         assert invoker.timeout == 300
 
     def test_validate_copilot_checks_availability(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test Copilot CLI validation happens during initialization."""
+        import shutil
+
+        # Mock copilot being available
+        monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
 
         def mock_run(*args: tuple, **kwargs: dict) -> MagicMock:
             result = MagicMock()
@@ -44,6 +56,11 @@ class TestCopilotInvoker:
 
     def test_invoke_success(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test successful Copilot CLI invocation."""
+        import shutil
+        
+        # Mock copilot being available
+        monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
+        
         expected_output = json.dumps({"result": "success"})
 
         def mock_run(*args: tuple, **kwargs: dict) -> MagicMock:

@@ -195,6 +195,11 @@ def mock_copilot_success(
     monkeypatch: pytest.MonkeyPatch, sample_diet_response: dict[str, Any]
 ) -> None:
     """Mock successful Copilot CLI execution."""
+    import shutil
+    import subprocess
+
+    # Mock shutil.which to pretend copilot is installed
+    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
 
     def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
         result = MagicMock()
@@ -203,14 +208,17 @@ def mock_copilot_success(
         result.stderr = ""
         return result
 
-    import subprocess
-
     monkeypatch.setattr(subprocess, "run", mock_run)
 
 
 @pytest.fixture
 def mock_copilot_failure(monkeypatch: pytest.MonkeyPatch) -> None:
     """Mock failed Copilot CLI execution."""
+    import shutil
+    import subprocess
+
+    # Mock shutil.which to pretend copilot is installed
+    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
 
     def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
         result = MagicMock()
@@ -219,15 +227,17 @@ def mock_copilot_failure(monkeypatch: pytest.MonkeyPatch) -> None:
         result.stderr = "Copilot CLI authentication failed"
         return result
 
-    import subprocess
-
     monkeypatch.setattr(subprocess, "run", mock_run)
 
 
 @pytest.fixture
 def mock_copilot_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
     """Mock Copilot CLI timeout."""
+    import shutil
     import subprocess
+
+    # Mock shutil.which to pretend copilot is installed
+    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
 
     def mock_run(*args: Any, **kwargs: Any) -> None:
         raise subprocess.TimeoutExpired(cmd=args[0], timeout=120)
@@ -238,17 +248,20 @@ def mock_copilot_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.fixture
 def mock_copilot_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
     """Mock Copilot CLI not found."""
-    import subprocess
+    import shutil
 
-    def mock_run(*args: Any, **kwargs: Any) -> None:
-        raise FileNotFoundError("copilot command not found")
-
-    monkeypatch.setattr(subprocess, "run", mock_run)
+    # Mock shutil.which to return None (copilot not found)
+    monkeypatch.setattr(shutil, "which", lambda cmd: None)
 
 
 @pytest.fixture
 def mock_copilot_invalid_json(monkeypatch: pytest.MonkeyPatch) -> None:
     """Mock Copilot CLI returning invalid JSON."""
+    import shutil
+    import subprocess
+
+    # Mock shutil.which to pretend copilot is installed
+    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
 
     def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
         result = MagicMock()
@@ -256,7 +269,5 @@ def mock_copilot_invalid_json(monkeypatch: pytest.MonkeyPatch) -> None:
         result.stdout = "This is not JSON at all!"
         result.stderr = ""
         return result
-
-    import subprocess
 
     monkeypatch.setattr(subprocess, "run", mock_run)
