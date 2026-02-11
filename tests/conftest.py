@@ -199,7 +199,9 @@ def mock_copilot_success(
     import subprocess
 
     # Mock shutil.which to pretend copilot is installed
-    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
+    monkeypatch.setattr(
+        shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+    )
 
     def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
         result = MagicMock()
@@ -218,7 +220,9 @@ def mock_copilot_failure(monkeypatch: pytest.MonkeyPatch) -> None:
     import subprocess
 
     # Mock shutil.which to pretend copilot is installed
-    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
+    monkeypatch.setattr(
+        shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+    )
 
     def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
         result = MagicMock()
@@ -237,7 +241,9 @@ def mock_copilot_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
     import subprocess
 
     # Mock shutil.which to pretend copilot is installed
-    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
+    monkeypatch.setattr(
+        shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+    )
 
     def mock_run(*args: Any, **kwargs: Any) -> None:
         raise subprocess.TimeoutExpired(cmd=args[0], timeout=120)
@@ -261,7 +267,9 @@ def mock_copilot_invalid_json(monkeypatch: pytest.MonkeyPatch) -> None:
     import subprocess
 
     # Mock shutil.which to pretend copilot is installed
-    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
+    monkeypatch.setattr(
+        shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+    )
 
     def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
         result = MagicMock()

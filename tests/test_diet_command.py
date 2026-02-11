@@ -21,8 +21,14 @@ class TestDietCommand:
     ) -> None:
         """Test diet command with successful response."""
         # Mock subprocess to return valid diet response
+        import shutil
         import subprocess
         from unittest.mock import MagicMock
+
+        # Mock copilot being available
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
 
         def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
             result = MagicMock()
@@ -43,8 +49,14 @@ class TestDietCommand:
         self, monkeypatch: pytest.MonkeyPatch, temp_repo: Path, sample_diet_response: dict[str, Any]
     ) -> None:
         """Test diet command with --json flag."""
+        import shutil
         import subprocess
         from unittest.mock import MagicMock
+
+        # Mock copilot being available
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
 
         def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
             result = MagicMock()
@@ -67,8 +79,14 @@ class TestDietCommand:
         self, monkeypatch: pytest.MonkeyPatch, temp_repo: Path, sample_diet_response: dict[str, Any]
     ) -> None:
         """Test diet command with --out flag."""
+        import shutil
         import subprocess
         from unittest.mock import MagicMock
+
+        # Mock copilot being available
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
 
         def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
             result = MagicMock()
@@ -95,12 +113,10 @@ class TestDietCommand:
         self, monkeypatch: pytest.MonkeyPatch, temp_repo: Path
     ) -> None:
         """Test diet command when Copilot CLI is not found."""
-        import subprocess
+        import shutil
 
-        def mock_run(*args: Any, **kwargs: Any) -> None:
-            raise FileNotFoundError("copilot not found")
-
-        monkeypatch.setattr(subprocess, "run", mock_run)
+        # Mock copilot NOT being available
+        monkeypatch.setattr(shutil, "which", lambda cmd: None)
         monkeypatch.chdir(temp_repo)
 
         result = runner.invoke(app, ["diet"])
@@ -115,8 +131,14 @@ class TestDietCommand:
         sample_diet_response: dict[str, Any],
     ) -> None:
         """Test diet command on empty repository."""
+        import shutil
         import subprocess
         from unittest.mock import MagicMock
+
+        # Mock copilot being available
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
 
         def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
             result = MagicMock()
@@ -138,8 +160,14 @@ class TestDietCommand:
         self, monkeypatch: pytest.MonkeyPatch, temp_repo: Path, sample_diet_response: dict[str, Any]
     ) -> None:
         """Test diet command with --verbose flag."""
+        import shutil
         import subprocess
         from unittest.mock import MagicMock
+
+        # Mock copilot being available
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
 
         def mock_run(*args: Any, **kwargs: Any) -> MagicMock:
             result = MagicMock()
@@ -160,8 +188,14 @@ class TestDietCommand:
         self, monkeypatch: pytest.MonkeyPatch, temp_repo: Path, sample_diet_response: dict[str, Any]
     ) -> None:
         """Test diet command retries on invalid JSON."""
+        import shutil
         import subprocess
         from unittest.mock import MagicMock
+
+        # Mock copilot being available
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
 
         call_count = 0
 
@@ -194,8 +228,14 @@ class TestDietCommand:
         self, monkeypatch: pytest.MonkeyPatch, temp_repo: Path, sample_diet_response: dict[str, Any]
     ) -> None:
         """Test diet command with custom timeout."""
+        import shutil
         import subprocess
         from unittest.mock import MagicMock
+
+        # Mock copilot being available
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
 
         captured_timeout = None
 

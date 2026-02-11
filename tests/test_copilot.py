@@ -21,18 +21,24 @@ class TestCopilotInvoker:
     def test_initialization(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test CopilotInvoker initializes with no default timeout."""
         import shutil
+
         # Mock copilot being available
-        monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
-        
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
+
         invoker = CopilotInvoker()
         assert invoker.timeout is None
 
     def test_initialization_custom_timeout(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test CopilotInvoker initializes with custom timeout."""
         import shutil
+
         # Mock copilot being available
-        monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
-        
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
+
         invoker = CopilotInvoker(timeout=300)
         assert invoker.timeout == 300
 
@@ -41,7 +47,9 @@ class TestCopilotInvoker:
         import shutil
 
         # Mock copilot being available
-        monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
 
         def mock_run(*args: tuple, **kwargs: dict) -> MagicMock:
             result = MagicMock()
@@ -57,10 +65,12 @@ class TestCopilotInvoker:
     def test_invoke_success(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test successful Copilot CLI invocation."""
         import shutil
-        
+
         # Mock copilot being available
-        monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None)
-        
+        monkeypatch.setattr(
+            shutil, "which", lambda cmd: "/usr/bin/copilot" if cmd == "copilot" else None
+        )
+
         expected_output = json.dumps({"result": "success"})
 
         def mock_run(*args: tuple, **kwargs: dict) -> MagicMock:
