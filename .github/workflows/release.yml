@@ -101,14 +101,33 @@ jobs:
       - name: Set up Python
         run: uv python install 3.11
 
-      - name: Install package from wheel
+      - name: Create virtual environment and install package
         shell: bash
         run: |
+          # Create virtual environment
+          uv venv .venv
+          
+          # Activate virtual environment (cross-platform)
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            source .venv/Scripts/activate
+          else
+            source .venv/bin/activate
+          fi
+          
+          # Install package from wheel
           WHEEL=$(ls dist/*.whl)
-          uv pip install --system "$WHEEL"
+          uv pip install "$WHEEL"
 
       - name: Test CLI command
+        shell: bash
         run: |
+          # Activate virtual environment (cross-platform)
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            source .venv/Scripts/activate
+          else
+            source .venv/bin/activate
+          fi
+          
           repodoc --version
           repodoc --help
 
