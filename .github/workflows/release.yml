@@ -105,14 +105,10 @@ jobs:
         shell: bash
         run: |
           WHEEL=$(ls dist/*.whl)
-          uv venv
-          source .venv/bin/activate || .venv/Scripts/activate
-          uv pip install "$WHEEL"
+          uv pip install --system "$WHEEL"
 
       - name: Test CLI command
-        shell: bash
         run: |
-          source .venv/bin/activate || .venv/Scripts/activate
           repodoc --version
           repodoc --help
 
