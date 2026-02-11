@@ -226,11 +226,7 @@ def scan(
         # If --out specified (without --json), save formatted text to file
         if out:
             save_text_output(
-                Path(out),
-                renderer.render,
-                scan_result,
-                terminal=terminal,
-                verbose=verbose
+                Path(out), renderer.render, scan_result, terminal=terminal, verbose=verbose
             )
 
         # Show success message with next actions

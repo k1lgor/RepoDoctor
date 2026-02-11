@@ -98,7 +98,7 @@ def deadcode(
                 result,
                 min_confidence,
                 terminal=terminal,
-                verbose=verbose
+                verbose=verbose,
             )
 
     except ValidationError as e:

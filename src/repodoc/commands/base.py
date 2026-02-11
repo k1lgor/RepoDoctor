@@ -115,18 +115,18 @@ def save_text_output(output_path: Path, render_func, *args, **kwargs) -> None:
                 file=f,
                 width=120,
                 force_terminal=False,  # Disable color codes for file
-                legacy_windows=False
+                legacy_windows=False,
             )
 
             # Create a new terminal renderer with the file console
             from repodoc.renderers.terminal_renderer import TerminalRenderer
+
             file_terminal = TerminalRenderer(
-                verbose=kwargs.get('verbose', False),
-                console=file_console
+                verbose=kwargs.get("verbose", False), console=file_console
             )
 
             # Replace the console in the renderer temporarily
-            original_terminal = kwargs.get('terminal')
+            original_terminal = kwargs.get("terminal")
             if original_terminal:
                 # Create new renderer with file terminal
                 renderer_class = render_func.__self__.__class__

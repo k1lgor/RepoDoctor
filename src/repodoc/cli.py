@@ -15,19 +15,20 @@ if sys.platform == "win32":
     # Set console code page to UTF-8 on Windows
     with contextlib.suppress(Exception):
         import ctypes
+
         kernel32 = ctypes.windll.kernel32
         kernel32.SetConsoleCP(65001)
         kernel32.SetConsoleOutputCP(65001)
 
 # Set default encoding for Python's text streams
-sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 # Set locale to UTF-8 if possible
 with contextlib.suppress(locale.Error):
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 with contextlib.suppress(locale.Error):
-    locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+    locale.setlocale(locale.LC_ALL, "C.UTF-8")
 
 app = typer.Typer(
     name="repodoc",

@@ -134,7 +134,7 @@ def docker(
                 result,
                 patched_path_str,
                 terminal=terminal,
-                verbose=verbose
+                verbose=verbose,
             )
 
     except ValidationError as e:

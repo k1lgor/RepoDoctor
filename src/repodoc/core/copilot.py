@@ -72,8 +72,8 @@ class CopilotInvoker:
                 cwd=cwd,
                 capture_output=True,
                 text=True,
-                encoding='utf-8',  # Force UTF-8 encoding to handle all characters
-                errors='replace',  # Replace invalid characters instead of crashing
+                encoding="utf-8",  # Force UTF-8 encoding to handle all characters
+                errors="replace",  # Replace invalid characters instead of crashing
                 timeout=timeout,
                 check=False,
             )
