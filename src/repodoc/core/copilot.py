@@ -74,7 +74,7 @@ class CopilotInvoker:
                 text=True,
                 encoding="utf-8",  # Force UTF-8 encoding to handle all characters
                 errors="replace",  # Replace invalid characters instead of crashing
-                timeout=timeout,
+                timeout=timeout if timeout is not None else None,
                 check=False,
             )
 

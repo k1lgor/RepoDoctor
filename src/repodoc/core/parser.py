@@ -2,7 +2,7 @@
 
 import json
 import re
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from pydantic import BaseModel, ValidationError
 
@@ -45,7 +45,7 @@ class OutputParser:
 
         if matches:
             # Return the largest match (likely the complete JSON)
-            largest = max(matches, key=len)
+            largest = cast(str, max(matches, key=len))
             self.logger.debug("Found raw JSON in output")
             return largest
 

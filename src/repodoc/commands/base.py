@@ -1,6 +1,7 @@
 """Base command infrastructure with common patterns and utilities."""
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -96,7 +97,9 @@ def save_json_output(data: Any, output_path: Path) -> None:
         raise RepoDocError(error_msg) from e
 
 
-def save_text_output(output_path: Path, render_func, *args, **kwargs) -> None:
+def save_text_output(
+    output_path: Path, render_func: Callable[..., None], *args: Any, **kwargs: Any
+) -> None:
     """
     Save formatted text output to file by capturing rendered content.
 
@@ -129,10 +132,11 @@ def save_text_output(output_path: Path, render_func, *args, **kwargs) -> None:
             original_terminal = kwargs.get("terminal")
             if original_terminal:
                 # Create new renderer with file terminal
-                renderer_class = render_func.__self__.__class__
+                # Type ignore needed because __self__ is not part of Callable type
+                renderer_class = render_func.__self__.__class__  # type: ignore[attr-defined]
                 file_renderer = renderer_class(file_terminal)
                 # Call render method with file renderer
-                getattr(file_renderer, render_func.__name__)(*args)
+                getattr(file_renderer, render_func.__name__)(*args)  # type: ignore[attr-defined]
 
         console.print(f"[green]✓[/green] Output saved to: {output_path}")
         logger.info(f"Saved text output to {output_path}")

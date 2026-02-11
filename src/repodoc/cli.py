@@ -21,8 +21,10 @@ if sys.platform == "win32":
         kernel32.SetConsoleOutputCP(65001)
 
 # Set default encoding for Python's text streams
-sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
 
 # Set locale to UTF-8 if possible
 with contextlib.suppress(locale.Error):

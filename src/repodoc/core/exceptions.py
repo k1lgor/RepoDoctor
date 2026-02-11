@@ -62,8 +62,9 @@ class CopilotExecutionError(RepoDocError):
 class CopilotTimeoutError(RepoDocError):
     """Raised when Copilot CLI execution times out."""
 
-    def __init__(self, timeout: int) -> None:
-        message = f"Copilot CLI execution timed out after {timeout} seconds"
+    def __init__(self, timeout: int | None) -> None:
+        timeout_str = f"{timeout}" if timeout is not None else "default"
+        message = f"Copilot CLI execution timed out after {timeout_str} seconds"
         hint = (
             "Try increasing the timeout with a larger value, or check if your "
             "repository is very large. Large repositories may take longer to analyze."
