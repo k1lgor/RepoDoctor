@@ -475,5 +475,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  Made with ❤️ by developers, for developers
+  <i>Built with ❤️ and 🤖 by <a href="https://github.com/k1lgor">@k1lgor</a> using GitHub Copilot CLI</i>
 </p>
