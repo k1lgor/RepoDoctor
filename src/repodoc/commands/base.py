@@ -84,6 +84,56 @@ def ensure_repodoc_dir(repo_root: Path) -> Path:
     return repodoc_dir
 
 
+def ensure_cache_dir(repo_root: Path) -> Path:
+    """Ensure .repodoc/cache directory exists."""
+    repodoc_dir = ensure_repodoc_dir(repo_root)
+    cache_dir = repodoc_dir / "cache"
+    cache_dir.mkdir(exist_ok=True)
+    logger.debug(f"Ensured cache directory: {cache_dir}")
+    return cache_dir
+
+
+def get_cached_result(cache_dir: Path, module: str) -> dict[str, Any] | None:
+    """
+    Load cached result for a module if it exists.
+
+    Args:
+        cache_dir: Path to cache directory
+        module: Module name to check
+
+    Returns:
+        Cached data as dict or None if not found/invalid
+    """
+    cache_file = cache_dir / f"{module}.json"
+    if cache_file.exists():
+        try:
+            with open(cache_file, encoding="utf-8") as f:
+                data = json.load(f)
+                logger.debug(f"Found cached result for {module}")
+                return data
+        except Exception as e:
+            logger.warning(f"Failed to load cache for {module}: {e}")
+    return None
+
+
+def save_cached_result(cache_dir: Path, module: str, data: dict[str, Any]) -> None:
+    """
+    Save module result to cache.
+
+    Args:
+        cache_dir: Path to cache directory
+        module: Module name to save
+        data: Data to cache
+    """
+    cache_file = cache_dir / f"{module}.json"
+    try:
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        logger.debug(f"Saved cached result for {module}")
+    except Exception as e:
+        logger.warning(f"Failed to save cache for {module}: {e}")
+
+
 def save_json_output(data: Any, output_path: Path) -> None:
     """Save structured data as JSON to specified path."""
     try:
