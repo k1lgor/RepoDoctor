@@ -25,7 +25,16 @@ Return TWO things in STRICT JSON:
 {
   "command": "tour",
   "success": true,
-  "issues": [],
+  "issues": [
+    {
+      "title": "Missing CONTRIBUTING.md",
+      "description": "The repository lacks contribution guidelines for new developers",
+      "severity": "info",
+      "category": "hygiene",
+      "file_path": null,
+      "suggestion": "Add a CONTRIBUTING.md file with setup instructions"
+    }
+  ],
   "recommendations": [
     {
       "action": "Start by reading README.md, then main.py, then explore src/core/",
