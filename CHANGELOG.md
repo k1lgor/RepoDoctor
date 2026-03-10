@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-10
+
+### Added
+
+- Per-module scan caching in `.repodoc/cache/` for `diet`, `tour`, `docker`, and `deadcode` results
+- `repodoc scan --force` / `-f` to bypass cached module results and re-run all analyses
+
+### Changed
+
+- `scan` now runs enabled analysis modules in parallel instead of
+  sequentially, reducing total scan time on repositories with multiple
+  analyzers enabled
+- Shared command utilities now include cache directory management plus
+  reusable cache load/save helpers for source analysis commands
+- Tour prompt output now requests structured issue objects instead of bare
+  strings so generated onboarding data matches the command schemas more
+  reliably
+
+### Fixed
+
+- Schema validation now accepts issue lists that contain plain strings by coercing them into informational issue entries
+- Parser validation logs now include the schema name and failing payload
+  details, making Copilot output mismatches easier to diagnose
+- Cached scan results are validated back through the command schemas before
+  use, preventing malformed cache data from silently propagating
+
 ## [0.1.0] - 2026-02-11
 
 ### Added
@@ -45,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Type checking with ty**: Astral's blazing-fast type checker (10-100x faster than alternatives)
 
 ### Fixed
+
 - Logger exc_info parameter handling to prevent KeyError on error reporting
 - Windows console encoding issues with Unicode emojis in JSON mode
 - All commands now properly suppress Rich console output when --json flag is used
@@ -111,6 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Features
 
 #### Commands
+
 - **diet**: Repository bloat and hygiene analysis
 - **tour**: Onboarding guide generation (TOUR.md)
 - **docker**: Dockerfile security and optimization analysis
@@ -119,6 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **report**: Markdown report generation from scan results
 
 #### Core Capabilities
+
 - Copilot-first architecture (no hardcoded rules)
 - Schema-driven output validation
 - Automatic JSON parsing with markdown support
@@ -165,8 +194,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/k1lgor/RepoDoctor/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/k1lgor/RepoDoctor/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/k1lgor/RepoDoctor/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/k1lgor/RepoDoctor/releases/tag/v0.1.0
+
 - Formatted with ruff
 - Tested with pytest (51 passing tests, 54% coverage)
 - Built with Typer CLI framework
@@ -175,6 +206,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Zero lint errors, production-ready code
 
 ### CI/CD
+
 - Automated testing on push/PR (9 platform/Python combinations)
 - Automated dependency updates (weekly)
 - Automated PyPI publishing on tags
