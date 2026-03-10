@@ -1,5 +1,6 @@
 """Scan command: Full repository health analysis."""
 
+import concurrent.futures
 import json
 from pathlib import Path
 from typing import Annotated
@@ -9,10 +10,13 @@ from pydantic import ValidationError
 
 from repodoc.commands.base import (
     console,
+    ensure_cache_dir,
     ensure_repodoc_dir,
+    get_cached_result,
     get_repo_root,
     handle_command_error,
     handle_json_flag,
+    save_cached_result,
     save_text_output,
 )
 from repodoc.core.copilot import CopilotInvoker
@@ -48,6 +52,9 @@ def scan(
     timeout: Annotated[
         int | None, typer.Option("--timeout", help="Timeout in seconds for Copilot CLI")
     ] = None,
+    force: Annotated[
+        bool, typer.Option("--force", "-f", help="Force re-run all analyses, bypassing cache")
+    ] = False,
 ) -> None:
     """🔬 Run comprehensive repository health scan.
 
@@ -77,6 +84,7 @@ def scan(
     try:
         repo_root = get_repo_root()
         repodoc_dir = ensure_repodoc_dir(repo_root)
+        cache_dir = ensure_cache_dir(repo_root)
 
         if not json_output:
             console.print("\n[bold]🏥 RepoDoctor Full Scan[/bold]\n")
@@ -94,77 +102,94 @@ def scan(
         docker_result = None
         deadcode_result = None
 
-        # Module 1: Diet Analysis
-        if not json_output:
-            console.print("[bold cyan]1/4[/bold cyan] Running diet analysis...")
-        try:
+        def _run_diet():
+            cached = get_cached_result(cache_dir, "diet") if not force else None
+            if cached:
+                return parser.validate_schema(cached, DietOutput)
             diet_prompt = prompt_loader.get_prompt("diet", repo_path=str(repo_root))
             diet_output, _ = copilot.invoke_with_retry(diet_prompt, cwd=repo_root)
-            diet_result = parser.parse_and_validate(diet_output, DietOutput)
-            if not json_output:
-                console.print("     [green]✓[/green] Diet analysis complete\n")
-        except Exception as e:
-            logger.error(f"Diet analysis failed: {e}")
-            if not json_output:
-                console.print(f"     [yellow]⚠[/yellow] Diet analysis failed: {e}\n")
+            res = parser.parse_and_validate(diet_output, DietOutput)
+            save_cached_result(cache_dir, "diet", res.model_dump())
+            return res
 
-        # Module 2: Tour Generation
-        if not json_output:
-            console.print("[bold cyan]2/4[/bold cyan] Generating repository tour...")
-        try:
+        def _run_tour():
+            cached = get_cached_result(cache_dir, "tour") if not force else None
+            if cached:
+                return parser.validate_schema(cached, TourOutput)
             tour_prompt = prompt_loader.get_prompt("tour", repo_path=str(repo_root))
             tour_output, _ = copilot.invoke_with_retry(tour_prompt, cwd=repo_root)
-            tour_result = parser.parse_and_validate(tour_output, TourOutput)
-            if not json_output:
-                console.print("     [green]✓[/green] Tour generation complete\n")
-        except Exception as e:
-            logger.error(f"Tour generation failed: {e}")
-            if not json_output:
-                console.print(f"     [yellow]⚠[/yellow] Tour generation failed: {e}\n")
+            res = parser.parse_and_validate(tour_output, TourOutput)
+            save_cached_result(cache_dir, "tour", res.model_dump())
+            return res
 
-        # Module 3: Docker Analysis (optional)
-        if not skip_docker:
-            if not json_output:
-                console.print("[bold cyan]3/4[/bold cyan] Analyzing Dockerfile...")
+        def _run_docker():
             dockerfile_path = repo_root / "Dockerfile"
+            if not dockerfile_path.exists():
+                return None
+            cached = get_cached_result(cache_dir, "docker") if not force else None
+            if cached:
+                return parser.validate_schema(cached, DockerOutput)
+            docker_prompt = prompt_loader.get_prompt(
+                "docker", repo_path=str(repo_root), dockerfile_path=str(dockerfile_path)
+            )
+            docker_output, _ = copilot.invoke_with_retry(docker_prompt, cwd=repo_root)
+            res = parser.parse_and_validate(docker_output, DockerOutput)
+            save_cached_result(cache_dir, "docker", res.model_dump())
+            return res
 
-            if dockerfile_path.exists():
-                try:
-                    docker_prompt = prompt_loader.get_prompt(
-                        "docker", repo_path=str(repo_root), dockerfile_path=str(dockerfile_path)
-                    )
-                    docker_output, _ = copilot.invoke_with_retry(docker_prompt, cwd=repo_root)
-                    docker_result = parser.parse_and_validate(docker_output, DockerOutput)
-                    if not json_output:
-                        console.print("     [green]✓[/green] Docker analysis complete\n")
-                except Exception as e:
-                    logger.error(f"Docker analysis failed: {e}")
-                    if not json_output:
-                        console.print(f"     [yellow]⚠[/yellow] Docker analysis failed: {e}\n")
-            else:
-                if not json_output:
-                    console.print("     [dim]⊘[/dim] No Dockerfile found, skipping\n")
-        else:
-            if not json_output:
-                console.print("[bold cyan]3/4[/bold cyan] Skipping Docker analysis\n")
+        def _run_deadcode():
+            cached = get_cached_result(cache_dir, "deadcode") if not force else None
+            if cached:
+                return parser.validate_schema(cached, DeadCodeOutput)
+            deadcode_prompt = prompt_loader.get_prompt("deadcode", repo_path=str(repo_root))
+            deadcode_output, _ = copilot.invoke_with_retry(deadcode_prompt, cwd=repo_root)
+            res = parser.parse_and_validate(deadcode_output, DeadCodeOutput)
+            save_cached_result(cache_dir, "deadcode", res.model_dump())
+            return res
 
-        # Module 4: Dead Code Analysis (optional)
+        # Define tasks to run
+        tasks = [
+            ("diet", _run_diet),
+            ("tour", _run_tour),
+        ]
+        if not skip_docker:
+            tasks.append(("docker", _run_docker))
         if not skip_deadcode:
-            if not json_output:
-                console.print("[bold cyan]4/4[/bold cyan] Detecting dead code...")
-            try:
-                deadcode_prompt = prompt_loader.get_prompt("deadcode", repo_path=str(repo_root))
-                deadcode_output, _ = copilot.invoke_with_retry(deadcode_prompt, cwd=repo_root)
-                deadcode_result = parser.parse_and_validate(deadcode_output, DeadCodeOutput)
-                if not json_output:
-                    console.print("     [green]✓[/green] Dead code analysis complete\n")
-            except Exception as e:
-                logger.error(f"Dead code analysis failed: {e}")
-                if not json_output:
-                    console.print(f"     [yellow]⚠[/yellow] Dead code analysis failed: {e}\n")
-        else:
-            if not json_output:
-                console.print("[bold cyan]4/4[/bold cyan] Skipping dead code analysis\n")
+            tasks.append(("deadcode", _run_deadcode))
+
+        if not json_output:
+            console.print(
+                f"[bold cyan]Running {len(tasks)} analysis modules in parallel...[/bold cyan]\n"
+            )
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(tasks)) as executor:
+            future_to_module = {executor.submit(func): name for name, func in tasks}
+            for future in concurrent.futures.as_completed(future_to_module):
+                module_name = future_to_module[future]
+                try:
+                    result = future.result()
+                    if module_name == "diet":
+                        diet_result = result
+                    elif module_name == "tour":
+                        tour_result = result
+                    elif module_name == "docker":
+                        docker_result = result
+                    elif module_name == "deadcode":
+                        deadcode_result = result
+
+                    if not json_output:
+                        if module_name == "docker" and result is None:
+                            console.print("     [dim]⊘[/dim] No Dockerfile found, skipping")
+                        else:
+                            console.print(
+                                f"     [green]✓[/green] {module_name.capitalize()} complete"
+                            )
+                except Exception as e:
+                    logger.error(f"{module_name.capitalize()} analysis failed: {e}")
+                    if not json_output:
+                        console.print(
+                            f"     [yellow]⚠[/yellow] {module_name.capitalize()} failed: {e}"
+                        )
 
         # Calculate overall health score
         scores = []
