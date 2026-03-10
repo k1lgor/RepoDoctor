@@ -1,12 +1,10 @@
 [project]
 name = "repodoc"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Copilot-first CLI tool for repository health analysis"
 readme = "README.md"
 license = { text = "MIT" }
-authors = [
-    { name = "Plamen Ivanov", email = "paco.iwanow@gmail.com" }
-]
+authors = [{ name = "Plamen Ivanov", email = "paco.iwanow@gmail.com" }]
 keywords = [
     "copilot",
     "cli",
@@ -18,11 +16,7 @@ keywords = [
     "developer-tools",
 ]
 requires-python = ">=3.11"
-dependencies = [
-    "typer>=0.12.0",
-    "pydantic>=2.0.0",
-    "rich>=13.0.0",
-]
+dependencies = ["typer>=0.12.0", "pydantic>=2.0.0", "rich>=13.0.0"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -49,12 +43,7 @@ Documentation = "https://github.com/k1lgor/RepoDoctor#readme"
 repodoc = "repodoc.cli:app"
 
 [project.optional-dependencies]
-dev = [
-    "ruff>=0.8.0",
-    "ty>=0.0.1",
-    "pytest>=8.0.0",
-    "pytest-cov>=6.0.0",
-]
+dev = ["ruff>=0.8.0", "ty>=0.0.1", "pytest>=8.0.0", "pytest-cov>=6.0.0"]
 
 [build-system]
 requires = ["hatchling"]
@@ -87,9 +76,4 @@ indent-style = "space"
 # See: https://docs.astral.sh/ty/
 
 [dependency-groups]
-dev = [
-    "ty>=0.0.1",
-    "pytest>=9.0.2",
-    "pytest-cov>=7.0.0",
-    "ruff>=0.15.0",
-]
+dev = ["ty>=0.0.1", "pytest>=9.0.2", "pytest-cov>=7.0.0", "ruff>=0.15.0"]
