@@ -1,9 +1,9 @@
 """Base Pydantic schemas for RepoDoctor."""
 
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Severity(StrEnum):
@@ -74,3 +74,25 @@ class BaseCommandOutput(BaseModel):
     metadata: dict[str, str] = Field(
         default_factory=dict, description="Additional metadata (timestamp, version, etc.)"
     )
+
+    @field_validator("issues", mode="before")
+    @classmethod
+    def validate_issues(cls, v: Any) -> Any:
+        """Coerce strings in issues list to Issue objects."""
+        if not isinstance(v, list):
+            return v
+
+        coerced = []
+        for item in v:
+            if isinstance(item, str):
+                coerced.append(
+                    {
+                        "title": "Module Finding",
+                        "description": item,
+                        "severity": "info",
+                        "category": "general",
+                    }
+                )
+            else:
+                coerced.append(item)
+        return coerced
