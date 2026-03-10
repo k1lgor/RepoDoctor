@@ -104,7 +104,8 @@ class OutputParser:
             return validated
 
         except ValidationError as e:
-            self.logger.error(f"Schema validation failed: {e}")
+            self.logger.error(f"Schema validation failed for {schema.__name__}: {e}")
+            self.logger.debug(f"Data that failed validation: {data}")
             errors = e.errors()
             raise SchemaValidationError(
                 f"Output doesn't match expected schema {schema.__name__}",
